@@ -1,0 +1,25 @@
+{
+  "type": "module",
+  "name": "autoguide",
+  "version": "1.0.0",
+  "description": "proxy server to return token used in didox",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khojiakbarkhayotov/didox-proxy.git"
+  },
+  "author": "khojiakbarkhayotov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khojiakbarkhayotov/didox-proxy/issues"
+  },
+  "homepage": "https://github.com/khojiakbarkhayotov/didox-proxy#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  }
+}
