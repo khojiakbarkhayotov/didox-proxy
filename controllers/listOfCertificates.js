@@ -1,17 +1,15 @@
-import getListOfAllCertificates from '../services/listOfAllCertificates.js'
+import getListOfAllCertificates from '../services/listOfAllCertificates.js';
 
-const getList = async (req, res, next) => {
-    try {
-        getListOfAllCertificates(res); 
-    } catch (e) {
-      console.error('Error in getList:', e.message);
-      // Send error response only if a response hasn't already been sent
-      if (!res.headersSent) {
-        res.status(500).send({ error: 'Internal Server Error' });
-      }
-    }
-  };
+const getList = async (req, res) => {
+  try {
+    const certificates = await getListOfAllCertificates();
+    res.status(200).json(certificates);
+  } catch (error) {
+    console.error('Error in getList:', error.message);
 
-  
+    // Send error response
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export default getList;

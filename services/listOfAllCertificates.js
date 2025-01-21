@@ -3,51 +3,44 @@ import createWebSocketConnection from './socket.js';
 
 dotenv.config();
 
-const ws = createWebSocketConnection();
-
-const getListOfAllCertificates = (res) => {
+const getListOfAllCertificates = () => {
   const message = {
     plugin: 'pfx',
     name: 'list_all_certificates',
   };
 
-  // Send the WebSocket message
+  const ws = createWebSocketConnection();
+
   ws.send(JSON.stringify(message));
 
-  // Listen for the WebSocket response
-  ws.once('message', (data) => {
-    const message = data.toString();
-    console.log('Received message:', message);
+  return new Promise((resolve, reject) => {
+    console.log('\n\nSTEP 1 -> (List of certificates)(request)\n', message);
 
-    try {
-      const jsonMessage = JSON.parse(message);
+    const timeout = setTimeout(() => {
+      console.error('WebSocket response timed out');
+      reject(new Error('WebSocket response timed out'));
+    }, 10000);
 
-      if (jsonMessage.success) {
-        // Send a successful response
-        return res.status(200).json({ certificates: jsonMessage.certificates});
-      } else {
-        // Handle failure in the WebSocket response
-        return res.status(400).json({ error: 'Failed to fetch certificates' });
+    ws.once('message', (data) => {
+      clearTimeout(timeout); 
+
+      try {
+        const jsonMessage = JSON.parse(data.toString());
+        console.log(`STEP 1 -> (List of certificates)(response)\n${data}`)
+        if (jsonMessage.success) {
+          resolve(jsonMessage.certificates); // Resolve the data
+        } else {
+          reject(new Error('Failed to fetch certificates'));
+        }
+      } catch (err) {
+        reject(new Error('Invalid response format'));
       }
-    } catch (err) {
-      console.error('Error parsing message as JSON:', err.message);
+    });
 
-      // Return an error response
-      return res.status(500).json({ error: 'Internal Server Error!' });
-    }
-  });
-
-  // Handle WebSocket errors
-  ws.once('error', (err) => {
-    console.error('WebSocket error:', err.message);
-    if (!res.headersSent) {
-      return res.status(500).json({ error: 'WebSocket connection error' });
-    }
-  });
-
-  // Handle WebSocket close event
-  ws.once('close', () => {
-    console.log('WebSocket connection closed');
+    ws.once('error', (err) => {
+      clearTimeout(timeout);
+      reject(new Error(`WebSocket connection error: ${err.message}`));
+    });
   });
 };
 

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const webSocketIp = process.env.WEB_SOCKET_IP;
-const wsUrl = `wss://${webSocketIp}/service/cryptapi`;
+const wsUrl = `wss://${webSocketIp}/v1/dsvs/timestamp`;
 const wsOptions = {
   headers: {
     Host: webSocketIp,
@@ -13,7 +13,7 @@ const wsOptions = {
 };
 let ws = null;
 
-const createWebSocketConnection = (customWsUrl = wsUrl) => {
+const createWebSocket = (customWsUrl = wsUrl) => {
   // Close the existing connection if one exists
   if (ws !== null) {
     return ws;
@@ -23,7 +23,7 @@ const createWebSocketConnection = (customWsUrl = wsUrl) => {
   ws = new WebSocket(customWsUrl, wsOptions);
 
   ws.on('open', () => {
-    console.log('Connected to WebSocket server');
+    console.log('Connected to WebSocket timestamp server');
   });
 
   ws.on('error', (err) => {
@@ -32,7 +32,7 @@ const createWebSocketConnection = (customWsUrl = wsUrl) => {
     if (err.message.includes('Unexpected server response: 404')) {
       console.log('404 error occurred, attempting to reconnect with a different URL...');
       // You can change to a different URL or retry the current URL
-      createWebSocketConnection(); // Recursively attempt connection
+      createWebSocket(); // Recursively attempt connection
     }
   });
 
@@ -44,4 +44,4 @@ const createWebSocketConnection = (customWsUrl = wsUrl) => {
   return ws;
 };
 
-export default createWebSocketConnection;
+export default createWebSocket;
